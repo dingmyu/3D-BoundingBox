@@ -86,8 +86,12 @@ def main():
         my_vgg = vgg.vgg19_bn(pretrained=True)
         # TODO: load bins from file or something
         model = Model.Model(features=my_vgg.features, bins=2).cuda()
+        model_dict = model.state_dict()
         checkpoint = torch.load(weights_path + '/%s'%model_lst[-1])
-        model.load_state_dict(checkpoint['model_state_dict'])
+        new_dict = {k:v for k,v in checkpoint['model_state_dict'].items() if 'tracked' not in k}
+        model_dict.update(new_dict)
+        print(checkpoint['model_state_dict'].keys())
+        model.load_state_dict(new_dict)
         model.eval()
 
     # load yolo
@@ -184,18 +188,19 @@ def main():
             numpy_vertical = np.concatenate((truth_img, img), axis=0)
             cv2.imshow('SPACE for next image, any other key to exit', numpy_vertical)
         else:
-            cv2.imshow('3D detections', img)
+            #cv2.imshow('3D detections', img)
+            cv2.imwrite('result_%s.png' % id, img)
 
         if not FLAGS.hide_debug:
             print("\n")
             print('Got %s poses in %.3f seconds'%(len(detections), time.time() - start_time))
             print('-------------')
 
-        if FLAGS.video:
-            cv2.waitKey(1)
-        else:
-            if cv2.waitKey(0) != 32: # space bar
-                exit()
+#        if FLAGS.video:
+#            cv2.waitKey(1)
+#        else:
+#            if cv2.waitKey(0) != 32: # space bar
+#                exit()
 
 if __name__ == '__main__':
     main()

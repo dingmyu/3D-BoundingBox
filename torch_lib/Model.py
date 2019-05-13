@@ -11,8 +11,8 @@ def OrientationLoss(orient_batch, orientGT_batch, confGT_batch):
     indexes = torch.max(confGT_batch, dim=1)[1]
 
     # extract just the important bin
-    orientGT_batch = orientGT_batch[torch.arange(batch_size), indexes]
-    orient_batch = orient_batch[torch.arange(batch_size), indexes]
+    orientGT_batch = orientGT_batch[torch.arange(0,batch_size).long(), indexes.long()]
+    orient_batch = orient_batch[torch.arange(0,batch_size).long(), indexes.long()]
 
     theta_diff = torch.atan2(orientGT_batch[:,1], orientGT_batch[:,0])
     estimated_theta_diff = torch.atan2(orient_batch[:,1], orient_batch[:,0])

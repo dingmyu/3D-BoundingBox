@@ -1,9 +1,11 @@
 *.weights
 *.pkl
+*.pkl_
 *.pyc
 *.swp
 Kitti/testing
 Kitti/training
+Kitti/*.zip
 legacy
 eval/video/2011_09_26
 
