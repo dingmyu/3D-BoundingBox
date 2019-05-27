@@ -15,7 +15,7 @@ def main():
 
     # hyper parameters
     epochs = 100
-    batch_size = 8
+    batch_size = 256
     alpha = 0.6
     w = 0.4
 
@@ -26,7 +26,7 @@ def main():
 
     params = {'batch_size': batch_size,
               'shuffle': True,
-              'num_workers': 6}
+              'num_workers': 16}
 
     generator = data.DataLoader(dataset, **params)
 
@@ -62,7 +62,7 @@ def main():
         print('Resuming training....')
 
 
-
+    model = torch.nn.DataParallel(model)
     total_num_batches = int(len(dataset) / batch_size)
 
     for epoch in range(first_epoch+1, epochs+1):
@@ -106,7 +106,7 @@ def main():
             print ("Saving weights as %s ..." % name)
             torch.save({
                     'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': model.module.state_dict(),
                     'optimizer_state_dict': opt_SGD.state_dict(),
                     'loss': loss
                     }, name)
