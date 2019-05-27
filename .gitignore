@@ -3,9 +3,11 @@
 *.pkl_
 *.pyc
 *.swp
+*.png
 Kitti/testing
 Kitti/training
 Kitti/*.zip
 legacy
 eval/video/2011_09_26
-
+.ipynb_checkpoints
+result

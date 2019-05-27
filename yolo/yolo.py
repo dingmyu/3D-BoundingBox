@@ -83,16 +83,17 @@ class cv_Yolo:
                 if class_ == "person":
                     class_ = "pedestrian"
 
-                detections.append(Detection(box_2d, class_))
+                detections.append(Detection(box_2d, class_, confidences[i]))
 
         return detections
 
     def get_class(self, class_id):
         return self.labels[class_id]
 
-
+    
 
 class Detection:
-    def __init__(self, box_2d, class_):
+    def __init__(self, box_2d, class_, confidence):
         self.box_2d = box_2d
         self.detected_class = class_
+        self.confidence = confidence

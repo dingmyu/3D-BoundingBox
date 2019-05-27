@@ -37,7 +37,7 @@ def str2bool(v):
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--image-dir", default="eval/image_2/",
+parser.add_argument("--image-dir", default="Kitti/testing/image_2/",
                     help="Relative path to the directory containing images to detect. Default \
                     is eval/image_2/")
 
@@ -113,32 +113,37 @@ def main():
 
     img_path = os.path.abspath(os.path.dirname(__file__)) + "/" + image_dir
     # using P_rect from global calibration file
-    calib_path = os.path.abspath(os.path.dirname(__file__)) + "/" + cal_dir
-    calib_file = calib_path + "calib_cam_to_cam.txt"
+#     calib_path = os.path.abspath(os.path.dirname(__file__)) + "/" + cal_dir
+#     calib_file = calib_path + "calib_cam_to_cam.txt"
 
     # using P from each frame
-    # calib_path = os.path.abspath(os.path.dirname(__file__)) + '/Kitti/testing/calib/'
+    calib_path = os.path.abspath(os.path.dirname(__file__)) + '/Kitti/testing/calib/'
 
     try:
         ids = [x.split('.')[0] for x in sorted(os.listdir(img_path))]
     except:
         print("\nError: no images in %s"%img_path)
         exit()
+    
+    
 
     for id in ids:
-
+        print(id)
+#         f = open('result/%s.txt' % id,'w')
         start_time = time.time()
 
         img_file = img_path + id + ".png"
+        #print(img_file, file=f)
 
         # P for each frame
-        # calib_file = calib_path + id + ".txt"
+        calib_file = calib_path + id + ".txt"
 
         truth_img = cv2.imread(img_file)
         img = np.copy(truth_img)
         yolo_img = np.copy(truth_img)
 
         detections = yolo.detect(yolo_img)
+        #print(len(detections))
 
         for detection in detections:
 
@@ -151,7 +156,7 @@ def main():
                 object = DetectedObject(img, detection.detected_class, detection.box_2d, calib_file)
             except:
                 continue
-
+            #print(object)
             theta_ray = object.theta_ray
             input_img = object.img
             proj_matrix = object.proj_matrix
@@ -178,15 +183,19 @@ def main():
 
             if FLAGS.show_yolo:
                 location = plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
+                print('proj_matrix,', proj_matrix, 'box_2d,', box_2d, 'dim,', dim, 'alpha,', alpha, 'theta_ray,', theta_ray, 'detected_class,', detected_class, 'location, ', location, 'confidence, ', detection.confidence)
+#                 print(detected_class, -1, -1, alpha, box_2d[0][0],box_2d[0][1],box_2d[1][0],box_2d[1][1], dim[0], dim[1], dim[2], location[0], location[1], location[2], theta_ray+alpha, detection.confidence, file = f, flush=True)
             else:
                 location = plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray)
 
             if not FLAGS.hide_debug:
                 print('Estimated pose: %s'%location)
 
+#         f.close()
         if FLAGS.show_yolo:
             numpy_vertical = np.concatenate((truth_img, img), axis=0)
-            cv2.imshow('SPACE for next image, any other key to exit', numpy_vertical)
+            cv2.imwrite('result_%s.png' % id, numpy_vertical)
+            #cv2.imshow('SPACE for next image, any other key to exit', numpy_vertical)
         else:
             #cv2.imshow('3D detections', img)
             cv2.imwrite('result_%s.png' % id, img)
@@ -196,11 +205,11 @@ def main():
             print('Got %s poses in %.3f seconds'%(len(detections), time.time() - start_time))
             print('-------------')
 
-#        if FLAGS.video:
-#            cv2.waitKey(1)
-#        else:
-#            if cv2.waitKey(0) != 32: # space bar
-#                exit()
+#         if FLAGS.video:
+#             cv2.waitKey(1)
+#         else:
+#             if cv2.waitKey(0) != 32: # space bar
+#                 exit()
 
 if __name__ == '__main__':
     main()
