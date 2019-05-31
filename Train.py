@@ -68,7 +68,7 @@ def main():
     for epoch in range(first_epoch+1, epochs+1):
         curr_batch = 0
         passes = 0
-        for local_batch, local_labels in generator:
+        for local_batch, local_batch_prev, local_labels in generator:
 
             truth_orient = Variable(local_labels['Orientation'].float()).cuda()
             truth_conf = Variable(local_labels['Confidence'].long()).cuda()
@@ -77,11 +77,14 @@ def main():
             local_batch=Variable(local_batch.float()).cuda()
             [orient, conf, dim] = model(local_batch)
 
+            local_batch_prev=Variable(local_batch_prev.float()).cuda()
+            [orient_pre, conf_pre, dim_pre] = model(local_batch_prev)
+            
             orient_loss = orient_loss_func(orient, truth_orient, truth_conf)
-            dim_loss = dim_loss_func(dim, truth_dim)
+            dim_loss = dim_loss_func(dim, truth_dim) + dim_loss_func(dim_pre, truth_dim)
 
             truth_conf = torch.max(truth_conf, dim=1)[1]
-            conf_loss = conf_loss_func(conf, truth_conf)
+            conf_loss = conf_loss_func(conf, truth_conf) + conf_loss_func(conf_pre, truth_conf)
 
             loss_theta = conf_loss + w * orient_loss
             loss = alpha * dim_loss + loss_theta

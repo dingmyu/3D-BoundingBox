@@ -129,7 +129,7 @@ def main():
 
     for id in ids:
         print(id)
-#         f = open('result/%s.txt' % id,'w')
+        f = open('result/%s.txt' % id,'w')
         start_time = time.time()
 
         img_file = img_path + id + ".png"
@@ -153,7 +153,7 @@ def main():
             # this is throwing when the 2d bbox is invalid
             # TODO: better check
             try:
-                object = DetectedObject(img, detection.detected_class, detection.box_2d, calib_file)
+                object = DetectedObject(img, img, detection.detected_class, detection.box_2d, calib_file)
             except:
                 continue
             #print(object)
@@ -184,14 +184,14 @@ def main():
             if FLAGS.show_yolo:
                 location = plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
                 print('proj_matrix,', proj_matrix, 'box_2d,', box_2d, 'dim,', dim, 'alpha,', alpha, 'theta_ray,', theta_ray, 'detected_class,', detected_class, 'location, ', location, 'confidence, ', detection.confidence)
-#                 print(detected_class, -1, -1, alpha, box_2d[0][0],box_2d[0][1],box_2d[1][0],box_2d[1][1], dim[0], dim[1], dim[2], location[0], location[1], location[2], theta_ray+alpha, detection.confidence, file = f, flush=True)
+                print(detected_class, -1, -1, alpha, box_2d[0][0],box_2d[0][1],box_2d[1][0],box_2d[1][1], dim[0], dim[1], dim[2], location[0], location[1], location[2], theta_ray+alpha, detection.confidence, file = f, flush=True)
             else:
                 location = plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray)
 
             if not FLAGS.hide_debug:
                 print('Estimated pose: %s'%location)
 
-#         f.close()
+        f.close()
         if FLAGS.show_yolo:
             numpy_vertical = np.concatenate((truth_img, img), axis=0)
             cv2.imwrite('result_%s.png' % id, numpy_vertical)
